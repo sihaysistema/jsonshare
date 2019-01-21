@@ -54,6 +54,7 @@ def crud(item):
         frappe.msgprint(_('FAIL'))
 
 # es-GT: Esta funcion comparte la data con el servidor indicado, es llamada por crud.
+# muestra que es lo que recibio de respuesta de la url a la que se le envio la data.
 def compartir_data(data):
     url = 'http://192.168.0.46/api/method/jsonshare.api.receivejson'
 
@@ -67,29 +68,43 @@ def compartir_data(data):
         # frappe.msgprint(_(json.dumps(data)))
     else:
         frappe.msgprint(_(r.status_code))
+        frappe.msgprint(_(r.content))
 
 """ FUNCIONES QUE CORREN EN EL SERVIDOR DE RECEPCION """
 @frappe.whitelist(allow_guest=True)
 def receivejson(data):
-    '''NO CAMBIAR'''
+    # SI SIRVEN
+    with open('recibido.json', 'w') as salida:
+            salida.write(data)
+            salida.close()
+    
+    # NO SIRVEN
+    #mensaje()
+    #frappe.publish_realtime(event='msgprint',message='Alguien llamo este metodo de receive json')
     # kwargs=frappe._dict(kwargs)
     # return kwargs
     # Se pueden agregar verificaciones del json recibido
     item_data = json.loads(data)
     guardar_dato_recibido(item_data)
+    #hello = 'Hello World'
+    #return hello
+    return item_data
+
+def mensaje():
+    frappe.publish_realtime(event='msgprint',message='Alguien llamo este metodo de receive json')
 
 def guardar_dato_recibido(item_fields):
     # frappe.msgprint(_(item_fields))
     for item in item_fields:
         if not frappe.db.exists('Item', _(item.get('item_code'))):
             frappe.doc({
-                 'doctype': 'Item',
-                 'item_name': _(item.get('item_name')),
-                 'item_code': _(item.get('item_code')),
-                 'item_group': _(item.get('item_group')),
-                  'stock_uom': _(item.get('stock_uom')),
-                  'description': _(item.get('description')),                    
-                  'is_stock_item': _(item.get('is_stock_item'))                  
+                'doctype': 'Item',
+                'item_name': _(item.get('item_name')),
+                'item_code': _(item.get('item_code')),
+                'item_group': _(item.get('item_group')),
+                'stock_uom': _(item.get('stock_uom')),
+                'description': _(item.get('description')),                    
+                'is_stock_item': _(item.get('is_stock_item'))                  
              }).insert(ignore_permissions=True)
     return 200
 
