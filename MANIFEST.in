@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include jsonshare *.css
+recursive-include jsonshare *.csv
+recursive-include jsonshare *.html
+recursive-include jsonshare *.ico
+recursive-include jsonshare *.js
+recursive-include jsonshare *.json
+recursive-include jsonshare *.md
+recursive-include jsonshare *.png
+recursive-include jsonshare *.py
+recursive-include jsonshare *.svg
+recursive-include jsonshare *.txt
+recursive-exclude jsonshare *.pyc
