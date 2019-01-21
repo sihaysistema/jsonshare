@@ -4,3 +4,4 @@
 *.swp
 tags
 jsonshare/docs/current
+.vscode/

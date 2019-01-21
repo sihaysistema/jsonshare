@@ -1,0 +1,5 @@
+{
+    "jsonshare/js/jsonshare.min.js": [
+        "public/js/jsonshare.js"
+    ]
+}
