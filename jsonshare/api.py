@@ -68,6 +68,11 @@ def mensaje():
 
 def guardar_dato_recibido(item_fields):
     # frappe.msgprint(_(item_fields))
+    results = None
+    spc = ' '
+    cma = ','
+    new_uom_message = 'New UOM created'
+    new_item_message = 'New item created'
     for item in item_fields:
         new_item = frappe.new_doc("Item")
         new_item.item_code = _(item.get('item_code'))
@@ -84,17 +89,19 @@ def guardar_dato_recibido(item_fields):
             new_stock_uom = frappe.new_doc("UOM")
             new_stock_uom.uom_name = _(item.get('stock_uom'))
             new_stock_uom.save(ignore_permissions=True)
+            results = new_uom_message
         else:
             new_item.stock_uom = _(item.get('stock_uom'))
         new_item.save(ignore_permissions=True)
-    hello = 'Se ha creado un nuevo Item'
-    return hello
-    #return 200
+        if results == None:
+            results = new_item_message
+        else:
+            results += cma + spc + new_item_message
+    return results
 
 @frappe.whitelist(allow_guest=True)
 def receivejson(data):
     item_data = json.loads(data)
-    guardar_dato_recibido(item_data)
     #frappe.publish_realtime(event='global',message='Alguien llamo este metodo de receive json',room=None)
-    hello = 'Se ha creado un nuevo Item'
-    return hello
+    mensaje = guardar_dato_recibido(item_data)
+    return mensaje
