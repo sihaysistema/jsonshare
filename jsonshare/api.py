@@ -74,5 +74,9 @@ def guardar_dato_recibido(item_fields):
 
 @frappe.whitelist(allow_guest=True)
 def receivejson(data):
+    new_item = frappe.new_doc("UOM")
+    new_item.uom_name = 'Palito1'
+    new_item.must_be_whole_number = 0
+    new_item.save(ignore_permissions=True)
     hello = 'Hello World'
     return hello
