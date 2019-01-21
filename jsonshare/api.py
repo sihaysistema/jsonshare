@@ -36,13 +36,18 @@ def hello_world(**kwargs):
 
 
 def guardar_dato_recibido(item_fields):
-    frappe.msgprint(_(item_fields))
-    # for item in item_fields:
-    #         if not frappe.db.exists('Item', _(item.get('item_code'))):
-    #             frappe.doc({
-    #                 'doctype': 'Item',
-    #                 'item_name': _(item.get('item_name'))
-    #             }).insert(ignore_permissions=True)
+    # frappe.msgprint(_(item_fields))
+    for item in item_fields:
+            if not frappe.db.exists('Item', _(item.get('item_code'))):
+                frappe.doc({
+                    'doctype': 'Item',
+                    'item_name': _(item.get('item_name')),
+                    'item_code': _(item.get('item_code')),
+                    'item_group': _(item.get('item_group')),
+                    'stock_uom': _(item.get('stock_uom')),
+                    'description': _(item.get('description')),                    
+                    'is_stock_item': _(item.get('is_stock_item'))                  
+                }).insert(ignore_permissions=True)
 
     return 200
 
@@ -70,8 +75,8 @@ def compartir_data(data):
         frappe.msgprint(_('Error'))
         # frappe.msgprint(_(json.dumps(data)))
     else:
-        # frappe.msgprint(_(r.status_code))
-        pass
+        frappe.msgprint(_(r.status_code))
+
 
 
 @frappe.whitelist()
