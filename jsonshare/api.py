@@ -33,6 +33,23 @@ def hello_world(**kwargs):
     hello = 'Hello World'
     return hello
 
+# es-GT: Esta funcion comparte la data con el servidor indicado, es llamada por crud.
+# muestra que es lo que recibio de respuesta de la url a la que se le envio la data.
+def compartir_data(data):
+    url = 'http://192.168.0.46/api/method/jsonshare.api.receivejson'
+
+    try:
+        r = requests.post(url, data=json.dumps(data))
+        # frappe.msgprint(_(json.dumps(data)))
+    except:
+        # Codigo Status
+        # print('Status : ' + str(r.status_code) + '\n')
+        frappe.msgprint(_('Error'))
+        # frappe.msgprint(_(json.dumps(data)))
+    else:
+        frappe.msgprint(_(r.status_code))
+        frappe.msgprint(_(r.content))
+
 """ FUNCIONES QUE CORREN EN EL SERVIDOR DE ENVIO """
 # es-GT: Esta funcino es la que es llamada por parte del boton a la medida de Share del Item.
 @frappe.whitelist()
@@ -53,24 +70,15 @@ def crud(item):
     except:
         frappe.msgprint(_('FAIL'))
 
-# es-GT: Esta funcion comparte la data con el servidor indicado, es llamada por crud.
-# muestra que es lo que recibio de respuesta de la url a la que se le envio la data.
-def compartir_data(data):
-    url = 'http://192.168.0.46/api/method/jsonshare.api.receivejson'
-
-    try:
-        r = requests.post(url, data=json.dumps(data))
-        # frappe.msgprint(_(json.dumps(data)))
-    except:
-        # Codigo Status
-        # print('Status : ' + str(r.status_code) + '\n')
-        frappe.msgprint(_('Error'))
-        # frappe.msgprint(_(json.dumps(data)))
-    else:
-        frappe.msgprint(_(r.status_code))
-        frappe.msgprint(_(r.content))
 
 """ FUNCIONES QUE CORREN EN EL SERVIDOR DE RECEPCION """
+def mensaje():
+    frappe.publish_realtime(event='msgprint',message='Alguien llamo este metodo de receive json')
+
+def guardar_dato_recibido(item_fields):
+    # frappe.msgprint(_(item_fields))
+    frappe.doc({'doctype': 'UOM','uom_name': 'palito1','must_be_whole_number': 0}).insert(ignore_permissions=True)
+    return 200
 
 @frappe.whitelist(allow_guest=True)
 def receivejson(data):
@@ -90,15 +98,6 @@ def receivejson(data):
     hello = 'Hello World'
     return hello
     #return item_data
-
-def mensaje():
-    frappe.publish_realtime(event='msgprint',message='Alguien llamo este metodo de receive json')
-
-def guardar_dato_recibido(item_fields):
-    # frappe.msgprint(_(item_fields))
-    frappe.doc({'doctype': 'UOM','uom_name': 'palito1','must_be_whole_number': 0}).insert(ignore_permissions=True)
-    return 200
-
 
 #for item in item_fields:
     #    if not frappe.db.exists('Uom', _(item.get('uom_name'))):
