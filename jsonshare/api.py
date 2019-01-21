@@ -71,32 +71,43 @@ def compartir_data(data):
         frappe.msgprint(_(r.content))
 
 """ FUNCIONES QUE CORREN EN EL SERVIDOR DE RECEPCION """
+
 @frappe.whitelist(allow_guest=True)
 def receivejson(data):
     # SI SIRVEN
-    with open('recibido.json', 'w') as salida:
-            salida.write(data)
-            salida.close()
-    
+    #with open('recibido.json', 'w') as salida:
+    #        salida.write(data)
+    #        salida.close()
+    #frappe.doc({'doctype': 'UOM','uom_name': 'palito1','must_be_whole_number': 0}).insert(ignore_permissions=True)
     # NO SIRVEN
     #mensaje()
     #frappe.publish_realtime(event='msgprint',message='Alguien llamo este metodo de receive json')
     # kwargs=frappe._dict(kwargs)
     # return kwargs
     # Se pueden agregar verificaciones del json recibido
-    item_data = json.loads(data)
-    guardar_dato_recibido(item_data)
-    #hello = 'Hello World'
-    #return hello
-    return item_data
+    #item_data = json.loads(data)
+    #guardar_dato_recibido(json.dumps(item_data))
+    hello = 'Hello World'
+    return hello
+    #return item_data
 
 def mensaje():
     frappe.publish_realtime(event='msgprint',message='Alguien llamo este metodo de receive json')
 
 def guardar_dato_recibido(item_fields):
     # frappe.msgprint(_(item_fields))
-    for item in item_fields:
-        if not frappe.db.exists('Item', _(item.get('item_code'))):
+    frappe.doc({'doctype': 'UOM','uom_name': 'palito1','must_be_whole_number': 0}).insert(ignore_permissions=True)
+    return 200
+
+
+#for item in item_fields:
+    #    if not frappe.db.exists('Uom', _(item.get('uom_name'))):
+    #        frappe.doc({
+    #            'doctype': 'Uom',
+    #            'uom_name': _(item.get('uom_name')),
+    #            'must_be_whole_number': _(item.get('must_be_whole_number'))              
+    #        }).insert(ignore_permissions=True)
+        """if not frappe.db.exists('Item', _(item.get('item_code'))):
             frappe.doc({
                 'doctype': 'Item',
                 'item_name': _(item.get('item_name')),
@@ -105,9 +116,7 @@ def guardar_dato_recibido(item_fields):
                 'stock_uom': _(item.get('stock_uom')),
                 'description': _(item.get('description')),                    
                 'is_stock_item': _(item.get('is_stock_item'))                  
-             }).insert(ignore_permissions=True)
-    return 200
-
+            }).insert(ignore_permissions=True)"""
     # # UPDATE DATA
     # update_item=frappe.get_doc("Item", item_code)
     # update_item.crop_cycle=""
