@@ -14,7 +14,6 @@ import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-
 @frappe.whitelist(allow_guest=True)
 def sumtwo(num1, num2):
     sumoftwo = int(num1) + int(num2)
@@ -34,51 +33,8 @@ def hello_world(**kwargs):
     hello = 'Hello World'
     return hello
 
-
-def guardar_dato_recibido(item_fields):
-    # frappe.msgprint(_(item_fields))
-    for item in item_fields:
-            if not frappe.db.exists('Item', _(item.get('item_code'))):
-                frappe.doc({
-                    'doctype': 'Item',
-                    'item_name': _(item.get('item_name')),
-                    'item_code': _(item.get('item_code')),
-                    'item_group': _(item.get('item_group')),
-                    'stock_uom': _(item.get('stock_uom')),
-                    'description': _(item.get('description')),                    
-                    'is_stock_item': _(item.get('is_stock_item'))                  
-                }).insert(ignore_permissions=True)
-
-    return 200
-
-
-@frappe.whitelist(allow_guest=True)
-def receivejson(data_in):
-    '''NO CAMBIAR'''
-    # kwargs=frappe._dict(kwargs)
-    # return kwargs
-    # Se pueden agregar verificaciones del json recibido
-    item_data = json.loads(data_in)
-    guardar_dato_recibido(item_data)
-
-
-
-def compartir_data(data):
-    url = 'http://192.168.0.46/api/method/jsonshare.api.receivejson'
-
-    try:
-        r = requests.post(url, data=json.dumps(data))
-        # frappe.msgprint(_(json.dumps(data)))
-    except:
-        # Codigo Status
-        # print('Status : ' + str(r.status_code) + '\n')
-        frappe.msgprint(_('Error'))
-        # frappe.msgprint(_(json.dumps(data)))
-    else:
-        frappe.msgprint(_(r.status_code))
-
-
-
+""" FUNCIONES QUE CORREN EN EL SERVIDOR DE ENVIO """
+# es-GT: Esta funcino es la que es llamada por parte del boton a la medida de Share del Item.
 @frappe.whitelist()
 def crud(item):
     '''Funcion encarga de obtener datos y mandarlos por HTTP
@@ -96,6 +52,46 @@ def crud(item):
         compartir_data(item_data)
     except:
         frappe.msgprint(_('FAIL'))
+
+# es-GT: Esta funcion comparte la data con el servidor indicado, es llamada por crud.
+def compartir_data(data):
+    url = 'http://192.168.0.46/api/method/jsonshare.api.receivejson'
+
+    try:
+        r = requests.post(url, data=json.dumps(data))
+        # frappe.msgprint(_(json.dumps(data)))
+    except:
+        # Codigo Status
+        # print('Status : ' + str(r.status_code) + '\n')
+        frappe.msgprint(_('Error'))
+        # frappe.msgprint(_(json.dumps(data)))
+    else:
+        frappe.msgprint(_(r.status_code))
+
+""" FUNCIONES QUE CORREN EN EL SERVIDOR DE RECEPCION """
+@frappe.whitelist(allow_guest=True)
+def receivejson(data):
+    '''NO CAMBIAR'''
+    # kwargs=frappe._dict(kwargs)
+    # return kwargs
+    # Se pueden agregar verificaciones del json recibido
+    item_data = json.loads(data)
+    guardar_dato_recibido(item_data)
+
+def guardar_dato_recibido(item_fields):
+    # frappe.msgprint(_(item_fields))
+    for item in item_fields:
+        if not frappe.db.exists('Item', _(item.get('item_code'))):
+            frappe.doc({
+                 'doctype': 'Item',
+                 'item_name': _(item.get('item_name')),
+                 'item_code': _(item.get('item_code')),
+                 'item_group': _(item.get('item_group')),
+                  'stock_uom': _(item.get('stock_uom')),
+                  'description': _(item.get('description')),                    
+                  'is_stock_item': _(item.get('is_stock_item'))                  
+             }).insert(ignore_permissions=True)
+    return 200
 
     # # UPDATE DATA
     # update_item=frappe.get_doc("Item", item_code)
