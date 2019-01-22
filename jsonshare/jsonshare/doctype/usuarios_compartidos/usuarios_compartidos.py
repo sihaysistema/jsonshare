@@ -6,5 +6,5 @@ from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
 
-class ConfiguracionJsonShare(Document):
+class UsuariosCompartidos(Document):
 	pass
