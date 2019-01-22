@@ -14,10 +14,12 @@ import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
+
 @frappe.whitelist(allow_guest=True)
 def sumtwo(num1, num2):
     sumoftwo = int(num1) + int(num2)
     return sumoftwo
+
 
 @frappe.whitelist(allow_guest=True)
 def receivejson1(**kwargs):
@@ -25,11 +27,13 @@ def receivejson1(**kwargs):
     kwargs=kwargs
     return kwargs
 
+
 @frappe.whitelist(allow_guest=True)
 def hello_world(**kwargs):
     '''NO CAMBIAR'''
     hello = 'Hello World'
     return hello
+
 
 def compartir_data(data):
     url = 'http://192.168.0.46/api/method/jsonshare.api.receivejson'
@@ -63,8 +67,10 @@ def crud(item):
     except:
         frappe.msgprint(_('FAIL'))
 
+
 def mensaje():
     frappe.publish_realtime(event='msgprint',message='Alguien llamo este metodo de receive json')
+
 
 def guardar_dato_recibido(item_fields):
     # frappe.msgprint(_(item_fields))
@@ -98,6 +104,7 @@ def guardar_dato_recibido(item_fields):
         else:
             results += cma + spc + new_item_message
     return results
+
 
 @frappe.whitelist(allow_guest=True)
 def receivejson(data):
