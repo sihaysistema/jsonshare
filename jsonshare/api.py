@@ -74,37 +74,30 @@ def mensaje():
 
 
 def guardar_dato_recibido(item_fields):
-    # frappe.msgprint(_(item_fields))
-    results = None
-    spc = ' '
-    cma = ','
-    new_uom_message = 'New UOM created'
-    new_item_message = 'New item created'
-    for item in item_fields:
-        new_item = frappe.new_doc("Item")
-        new_item.item_code = _(item.get('item_code'))
-        new_item.item_name = _(item.get('item_name'))
-        new_item.description = _(item.get('description'))
-        new_item.is_stock_item = _(item.get('is_stock_item'))
+    n_item = len(item_fields)
 
-        if item.get('item_group') != 'All Item Groups':
-            new_item.item_group = 'All Item Groups'
-        else:
-            new_item.item_group = _(item.get('item_group'))
-        
-        if not frappe.db.exists('UOM', _(item.get('stock_uom'))):
-            new_stock_uom = frappe.new_doc("UOM")
-            new_stock_uom.uom_name = _(item.get('stock_uom'))
-            new_stock_uom.save(ignore_permissions=True)
-            results = new_uom_message
-        else:
-            new_item.stock_uom = _(item.get('stock_uom'))
-        new_item.save(ignore_permissions=True)
-        if results == None:
-            results = new_item_message
-        else:
-            results += cma + spc + new_item_message
-    return results
+    # for item in item_fields:
+    #     if not frappe.db.exists('Item', _(data.get('item_code'))):
+    #         new_item = frappe.new_doc('Item')
+    #         new_item.item_code = _(item.get('item_code'))
+    #         new_item.item_name = _(item.get('item_name'))
+    #         new_item.description = _(item.get('description'))
+    #         new_item.is_stock_item = _(item.get('is_stock_item'))
+
+    #         if item.get('item_group') != 'All Item Groups':
+    #             new_item.item_group = 'All Item Groups'
+    #         else:
+    #             new_item.item_group = _(item.get('item_group'))
+
+    #         if not frappe.db.exists('UOM', _(item.get('stock_uom'))):
+    #             new_stock_uom = frappe.new_doc("UOM")
+    #             new_stock_uom.uom_name = _(item.get('stock_uom'))
+    #             new_stock_uom.save(ignore_permissions=True)
+    #         else:
+    #             new_item.stock_uom = _(item.get('stock_uom'))
+    #             new_item.save(ignore_permissions=True)
+    # return results
+    return str(n_item)
 
 
 @frappe.whitelist(allow_guest=True)
