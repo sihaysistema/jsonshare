@@ -35,23 +35,24 @@ def hello_world(**kwargs):
     return hello
 
 
-def compartir_data(data):
-    url = 'http://192.168.0.46/api/method/jsonshare.api.receivejson'
+def compartir_data(data, usuario):
+    # Obtiene la single table el metodo a ejecutar
+    # Parametro 1 : Nombre doctype, Parametro 2: Nombre campo, parametro 3: deshabilida cache
+    metodo_api = frappe.db.get_single_value('Configuracion JsonShare', 'nombre', cache=False)
+    url = '{0}/{1}'.format(usuario, metodo_api)
 
     try:
         r = requests.post(url, data=json.dumps(data))
         # frappe.msgprint(_(json.dumps(data)))
     except:
-        # Codigo Status
-        # print('Status : ' + str(r.status_code) + '\n')
         frappe.msgprint(_('Error'))
-        # frappe.msgprint(_(json.dumps(data)))
     else:
         frappe.msgprint(_(r.status_code))
         frappe.msgprint(_(r.content))
 
+
 @frappe.whitelist()
-def crud(item):
+def crud(item, usuario):
     '''Funcion encarga de obtener datos y mandarlos por HTTP
         funcionalidades extras'''
     # GET DATA
@@ -63,7 +64,7 @@ def crud(item):
                                                     'item_group', 'stock_uom',
                                                     'standard_rate', 'description',
                                                     'is_stock_item'], as_dict=1)
-        compartir_data(item_data)
+        compartir_data(item_data, usuario)
     except:
         frappe.msgprint(_('FAIL'))
 

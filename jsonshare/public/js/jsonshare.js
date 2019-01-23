@@ -10,7 +10,6 @@ frappe.ui.form.on("Item", {
             frappe.call({
                 method: "jsonshare.utils.obtener_usuarios",
                 callback: function (r) {
-                    // console.log(r.message);
                     // Crea un Modal(dialogo), en las opciones del campo
                     // user_share se asigna el listado de usarios retornados
                     let dialog = new frappe.ui.Dialog({
@@ -38,20 +37,21 @@ frappe.ui.form.on("Item", {
 
                     // Agrega un event lister al boton compartir del dialogo
                     dialog.fields_dict.btn_share.$wrapper.on('click', function (e) {
-                        console.log('Eso es');
+                        // console.log('Eso es');
                         // Imprime el valor seleccionado
                         console.log(dialog.fields_dict.user_share.value);
                         // Imprime el codigo del item a ser enviado
                         console.log(frm.doc.item_code);
-                        // frappe.call({
-                        //     method: "jsonshare.api.crud",
-                        //     args: {
-                        //         item: frm.doc.item_code
-                        //     },
-                        //     callback: function () {
-                        //         // frm.reload_doc();
-                        //     }
-                        // });
+                        frappe.call({
+                            method: "jsonshare.api.crud",
+                            args: {
+                                item: frm.doc.item_code,
+                                usuario: dialog.fields_dict.user_share.value
+                            },
+                            callback: function () {
+                                // frm.reload_doc();
+                            }
+                        });
                     });
                 }
             });
