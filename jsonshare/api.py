@@ -52,25 +52,81 @@ def compartir_data(data, usuario):
 
 
 @frappe.whitelist()
-def crud(item, usuario):
+def crud(item, usuario, doctype):
     '''Funcion encarga de obtener datos y mandarlos por HTTP
         funcionalidades extras'''
     # GET DATA
-    # if frappe.db.exists('Items, {'numero_dte': serie_original_factura}):
-    try:
-        item_data = frappe.db.get_values('Item',
-                                         filters={'item_code': item},
-                                         fieldname=['item_code', 'item_name',
-                                                    'item_group', 'stock_uom',
-                                                    'standard_rate', 'description',
-                                                    'is_stock_item'], as_dict=1)
-        compartir_data(item_data, usuario)
-    except:
-        frappe.msgprint(_('FAIL'))
+    if doctype == 'Item':
+        try:
+            item_data = frappe.db.get_values('Item',
+                                            filters={'item_code': item},
+                                            fieldname=['item_code', 'item_name',
+                                                        'item_group', 'stock_uom',
+                                                        'standard_rate', 'description',
+                                                        'is_stock_item'], as_dict=1)
+            compartir_data(item_data, usuario)
+        except:
+            frappe.msgprint(_('FAIL'))
+
+    if doctype == 'Customer':
+        try:
+            # Obtiene informacion de Customer
+            customer_data = frappe.db.get_values('Customer',
+                                                 filters={'customer_name': item},
+                                                 fieldname=['customer_name', 'territory',
+                                                            'customer_group', 'customer_type'], as_dict=1)
+            # Obtiene las direcciones con relacion al cliente
+            dynamic_table = frappe.db.get_values('Dynamic Link',
+                                                 filters={'link_name': item, 'link_doctype': 'Customer',
+                                                          'parenttype': 'Address'},
+                                                 fieldname=['parent'], as_dict=1)
+            # Obtiene los contactos con relacion al cliente
+            dynamic_table_contacts = frappe.db.get_values('Dynamic Link',
+                                                          filters={'link_name': item, 'link_doctype': 'Customer',
+                                                                   'parenttype': 'Contact'},
+                                                          fieldname=['parent'], as_dict=1)
+
+            n_address = len(dynamic_table)
+            customer_address = []
+            for i in range(0, n_address):
+                # Obtiene las direcciones
+                customer_address_data = frappe.db.get_values('Address',
+                                                        filters={'name': dynamic_table[i]['parent']},
+                                                        fieldname=['email_id', 'county', 'city',
+                                                                   'address_line1', 'state', 'address_type',
+                                                                   'address_title', 'phone', 'country'], as_dict=1)
+                # Crea un array con todas las direcciones encontradas
+                customer_address.append(customer_address_data)
+
+            # Obtiene los contactos
+            n_contact = len(dynamic_table_contacts)
+            contact = []
+            for i in range(0, n_contact):
+                contact_data = frappe.db.get_values('Contact',
+                                                    filters={'name': dynamic_table_contacts[i]['parent']},
+                                                    fieldname=['email_id', 'first_name', 'last_name',
+                                                               'phone', 'mobile_no'], as_dict=1)
+                contact.append(contact_data)
+
+            guardar_cliente(customer_data, customer_address, contact)
+        except:
+            frappe.msgprint(_('FAIL Customer'))
+
+    # if doctype == 'Supplier':
+    #     try:
+    #         item_data = frappe.db.get_values('Supplier',
+    #                                         filters={'item_code': item},
+    #                                         fieldname=['item_code', 'item_name',
+    #                                                     'item_group', 'stock_uom',
+    #                                                     'standard_rate', 'description',
+    #                                                     'is_stock_item'], as_dict=1)
+    #         compartir_data(item_data, usuario)
+    #     except:
+    #         frappe.msgprint(_('FAIL'))
 
 
-def mensaje():
-    frappe.publish_realtime(event='msgprint',message='Alguien llamo este metodo de receive json')
+    # frappe.msgprint(_('{} {} {}'.format(item, usuario, doctype)))
+    # frappe.msgprint(_(item_data))
 
 
 def guardar_dato_recibido(item_fields):
@@ -109,9 +165,22 @@ def guardar_dato_recibido(item_fields):
     return mensaje
 
 
+def guardar_cliente(*args):
+    frappe.msgprint(_(args[0]))
+    frappe.msgprint(_(args[1]))
+    frappe.msgprint(_(args[2]))
+
+
 @frappe.whitelist(allow_guest=True)
 def receivejson(data):
     item_data = json.loads(data)
     #frappe.publish_realtime(event='global',message='Alguien llamo este metodo de receive json',room=None)
     mensaje = guardar_dato_recibido(item_data)
     return mensaje
+
+@frappe.whitelist(allow_guest=True)
+def receivejson(*args):
+    pass
+
+def mensaje():
+    frappe.publish_realtime(event='msgprint',message='Alguien llamo este metodo de receive json')
