@@ -40,7 +40,7 @@ function compartir_item(frm, doctype, codigo) {
                     // Imprime el valor seleccionado
                     console.log(dialog.fields_dict.user_share.value);
                     // Imprime el codigo del item a ser enviado
-                    console.log(frm.doc.item_code);
+                    //console.log(frm.doc.item_code);
                     frappe.call({
                         method: "jsonshare.api.crud",
                         args: {

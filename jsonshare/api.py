@@ -34,7 +34,6 @@ def hello_world(**kwargs):
     hello = 'Hello World'
     return hello
 
-
 def compartir_data(data, usuario):
     # Obtiene la single table el metodo a ejecutar
     # Parametro 1 : Nombre doctype, Parametro 2: Nombre campo, parametro 3: deshabilida cache
@@ -49,7 +48,6 @@ def compartir_data(data, usuario):
     else:
         frappe.msgprint(_(r.status_code))
         frappe.msgprint(_(r.content))
-
 
 @frappe.whitelist()
 def crud(item, usuario, doctype):
@@ -113,22 +111,6 @@ def crud(item, usuario, doctype):
             compartir_json_data(usuario, customer_data, customer_address, contact)
         except:
             frappe.msgprint(_('FAIL Customer'))
-
-    # if doctype == 'Supplier':
-    #     try:
-    #         item_data = frappe.db.get_values('Supplier',
-    #                                         filters={'item_code': item},
-    #                                         fieldname=['item_code', 'item_name',
-    #                                                     'item_group', 'stock_uom',
-    #                                                     'standard_rate', 'description',
-    #                                                     'is_stock_item'], as_dict=1)
-    #         compartir_data(item_data, usuario)
-    #     except:
-    #         frappe.msgprint(_('FAIL'))
-
-
-    # frappe.msgprint(_('{} {} {}'.format(item, usuario, doctype)))
-    # frappe.msgprint(_(item_data))
 
 
 def guardar_dato_recibido(item_fields):
@@ -194,15 +176,17 @@ def compartir_json_data(usuario, customer_data, customer_address, contact):
     metodo_api = frappe.db.get_single_value('Configuracion JsonShare', 'nombre', cache=False)
     url = '{0}/{1}'.format(usuario, metodo_api)
 
+    # frappe.msgprint(_(url))
     try:
         r = requests.post(url, data=json_data)
-        # frappe.msgprint(_(json.dumps(data)))
+        frappe.msgprint(_(json_data))
+        frappe.msgprint(_(url))
     except:
         frappe.msgprint(_('Error'))
     else:
         frappe.msgprint(_(r.status_code))
         frappe.msgprint(_(r.content))
-    # frappe.msgprint(_('All Locations'))
+    frappe.msgprint(_('All Locations'))
 
 
 @frappe.whitelist(allow_guest=True)
@@ -229,11 +213,12 @@ def mensaje():
     frappe.publish_realtime(event='msgprint',message='Alguien llamo este metodo de receive json')
 
 def create_customer_group():
+    pass
     # find if customer group exists as sent
     # if it exists, do not create it
     # if it doesn't, we refer to root, so we create it under root
     # we will separate the node groups created by a parent folder with the server address of the sender.    
-    #if parent_customer_group is None or parent == 'All Customer Groups'
-        #create the customer group
-    #else:
-        # find the customer group root
+    # if parent_customer_group is None or parent == 'All Customer Groups'
+    # create the customer group
+    # else:
+    # find the customer group root
