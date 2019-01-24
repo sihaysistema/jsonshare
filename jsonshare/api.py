@@ -205,23 +205,29 @@ def receivejson_customer(data):
     frappe.publish_realtime(event='eval_js', message='alert("{0}")'.format('funcionando'), user=frappe.session.user)
     return mensaje
 
-
 def mensaje():
     frappe.publish_realtime(event='msgprint',message='Alguien llamo este metodo de receive json')
 
 def create_customer(data_customer):
     data = data_customer
+    message_exists = 'The name of that customer already exists'
     if data['doctype'] == 'Customer':
         # Cargamos todos los campos
         customer_json = data['data']
         # Cargamos los campos de customer
         customer_fields = customer_json['fields']
-        new_customer = frappe.new_doc("Customer")
-        new_customer.customer_name = 'Palito1'
-        new_customer.customer_type = 'Company'
-        new_customer.territory = 'All Territories'
-        new_customer.customer_group = 'Individual'
-        new_customer.save(ignore_permissions=True)          
+        if not frappe.db.exists('Customer', _(customer_fields.get('customer_name'))):
+            new_customer = frappe.new_doc("Customer")
+            if not create_territory(_(customer_fields['territory'])):
+                new_customer.territory = customer_fields['territory']
+            if not create_customer_group(_(customer_fields.get('customer_group'))):
+                new_customer.customer_group = customer_fields.get('customer_group')
+            new_customer.customer_group = 'All Customer Groups'
+            new_customer.customer_name = customer_fields.get('customer_name')
+            new_customer.customer_type = customer_fields.get('customer_type')
+            new_customer.save(ignore_permissions=True)
+        else:
+            return message_exists          
         # Cargamos el array de direcciones
         # customer_addresses = customer_json['addresses']
         # for i in customer_addresses:
@@ -236,9 +242,29 @@ def create_customer(data_customer):
         #     new_object.insert(ignore_permissions=True)
         # datareturn = json.dumps(customer_addresses)
         # return datareturn
+def create_territory(territory_name):
+    if not frappe.db.exists('Territory', _(territory_name)):
+        new_territory = frappe.new_doc("Territory")
+        new_territory.territory_name = _(territory_name)
+        parent_territory = frappe.db.get_values('Territory',
+                                                filters={'parent_territory': ""},
+                                                fieldname=['name'], as_dict=1)
+        new_territory.parent_territory = parent_territory[0]['name']
+        new_territory.save(ignore_permissions=True)
+    else:
+        return false
 
-def create_customer_group(data_customer):
-    pass
+def create_customer_group(customer_group_name):
+    if not frappe.db.exists('Customer Group', _(customer_group_name)):
+        new_customer_group = frappe.new_doc("Customer Group")
+        new_customer_group.customer_group_name = _(customer_group_name)
+        customer_group_parent = frappe.db.get_values('Customer Group',
+                                                filters={'parent_customer_group': ""},
+                                                fieldname=['name'], as_dict=1)
+        new_customer_group.parent_customer_group = customer_group_parent[0]['name']
+        new_customer_group.save(ignore_permissions=True)
+    else:
+        return false
     # # find if customer group exists as sent
     # # if it exists, do not create it
     # # if it doesn't, we refer to root, so we create it under root
