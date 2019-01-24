@@ -50,6 +50,9 @@ def compartir_data(data, usuario):
         frappe.msgprint(_(r.status_code))
         frappe.msgprint(_(r.content))
 
+def compartir_datos(usuario, customer, address, contact):
+
+
 
 @frappe.whitelist()
 def crud(item, usuario, doctype):
@@ -106,9 +109,11 @@ def crud(item, usuario, doctype):
                                                     filters={'name': dynamic_table_contacts[i]['parent']},
                                                     fieldname=['email_id', 'first_name', 'last_name',
                                                                'phone', 'mobile_no'], as_dict=1)
+                # Crea un array con todos los contactos encontrados
                 contact.append(contact_data)
 
-            guardar_cliente(customer_data, customer_address, contact)
+            # Funcion para preparar informacion y mandarla
+            guardar_cliente(usuario, customer_data, customer_address, contact)
         except:
             frappe.msgprint(_('FAIL Customer'))
 
@@ -178,9 +183,11 @@ def receivejson(data):
     mensaje = guardar_dato_recibido(item_data)
     return mensaje
 
+
 @frappe.whitelist(allow_guest=True)
-def receivejson(*args):
+def receivejson_customer(*args):
     pass
+
 
 def mensaje():
     frappe.publish_realtime(event='msgprint',message='Alguien llamo este metodo de receive json')
