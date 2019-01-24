@@ -170,7 +170,7 @@ def compartir_json_data(usuario, customer_data, customer_address, contact):
     template_data['data'] = doctype_fields
     json_data = json.dumps(template_data)
     # frappe.msgprint(_(json_data))
-
+    frappe.publish_realtime(event='eval_js', message='alert("{0}")'.format('funcionando'), user=frappe.session.user)
     # Obtiene la single table el metodo a ejecutar
     # Parametro 1 : Nombre doctype, Parametro 2: Nombre campo, parametro 3: deshabilida cache
     metodo_api = frappe.db.get_single_value('Configuracion JsonShare', 'nombre', cache=False)
@@ -179,16 +179,15 @@ def compartir_json_data(usuario, customer_data, customer_address, contact):
     # frappe.msgprint(_(url))
     try:
         r = requests.post(url, data=json_data)
-        frappe.msgprint(_(json_data))
-        frappe.msgprint(_(url))
+        # frappe.msgprint(_(json_data))
+        # frappe.msgprint(_(url))
     except:
         frappe.msgprint(_('Error'))
     else:
         frappe.msgprint(_(r.status_code))
         frappe.msgprint(_(r.content))
-    frappe.msgprint(_('All Locations'))
-
-
+    frappe.msgprint(_('Todas las categorías de clientes'))
+        
 @frappe.whitelist(allow_guest=True)
 def receivejson(data):
     item_data = json.loads(data)
@@ -203,22 +202,48 @@ def receivejson_customer(data):
     customer_data = json.loads(data)
     #frappe.publish_realtime(event='global',message='Alguien llamo este metodo de receive json',room=None)
     mensaje = create_customer(customer_data)
-    frappe.publish_realtime(event='msgprint', message='alert("{0}")'.format('funcionando'), user=frappe.session.user)
+    frappe.publish_realtime(event='eval_js', message='alert("{0}")'.format('funcionando'), user=frappe.session.user)
     return mensaje
 
-def create_customer(data):
-    return data
 
 def mensaje():
     frappe.publish_realtime(event='msgprint',message='Alguien llamo este metodo de receive json')
 
-def create_customer_group():
+def create_customer(data_customer):
+    data = data_customer
+    if data['doctype'] == 'Customer':
+        # Cargamos todos los campos
+        customer_json = data['data']
+        # Cargamos los campos de customer
+        customer_fields = customer_json['fields']
+        new_customer = frappe.new_doc("Customer")
+        new_customer.customer_name = 'Palito1'
+        new_customer.customer_type = 'Company'
+        new_customer.territory = 'All Territories'
+        new_customer.customer_group = 'Individual'
+        new_customer.save(ignore_permissions=True)          
+        # Cargamos el array de direcciones
+        # customer_addresses = customer_json['addresses']
+        # for i in customer_addresses:
+        #     doc = i
+        #     new_object = frappe.get_doc(doc)
+        #     new_object.insert(ignore_permissions=True)
+        # # Cargamos el array de contactos
+        # customer_contacts = customer_json['contacts']
+        # for i in customer_contacts:
+        #     doc = i
+        #     new_object = frappe.get_doc(doc)
+        #     new_object.insert(ignore_permissions=True)
+        # datareturn = json.dumps(customer_addresses)
+        # return datareturn
+
+def create_customer_group(data_customer):
     pass
-    # find if customer group exists as sent
-    # if it exists, do not create it
-    # if it doesn't, we refer to root, so we create it under root
-    # we will separate the node groups created by a parent folder with the server address of the sender.    
-    # if parent_customer_group is None or parent == 'All Customer Groups'
-    # create the customer group
-    # else:
-    # find the customer group root
+    # # find if customer group exists as sent
+    # # if it exists, do not create it
+    # # if it doesn't, we refer to root, so we create it under root
+    # # we will separate the node groups created by a parent folder with the server address of the sender.    
+    # # if parent_customer_group is None or parent == 'All Customer Groups'
+    # # create the customer group
+    # # else:
+    # # find the customer group root
