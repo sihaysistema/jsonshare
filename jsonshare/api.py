@@ -229,19 +229,14 @@ def create_customer(data_customer):
         else:
             return message_exists          
         # Cargamos el array de direcciones
-        # customer_addresses = customer_json['addresses']
-        # for i in customer_addresses:
-        #     doc = i
-        #     new_object = frappe.get_doc(doc)
-        #     new_object.insert(ignore_permissions=True)
-        # # Cargamos el array de contactos
-        # customer_contacts = customer_json['contacts']
-        # for i in customer_contacts:
-        #     doc = i
-        #     new_object = frappe.get_doc(doc)
-        #     new_object.insert(ignore_permissions=True)
-        # datareturn = json.dumps(customer_addresses)
-        # return datareturn
+        customer_addresses = customer_json['addresses']
+        if not create_address_from_array(customer_addresses):
+            pass
+            # do nothing
+        customer_contacts = customer_json['contacts']
+        if not create_contact_from_array(customer_contacts):
+            pass
+
 def create_territory(territory_name):
     if not frappe.db.exists('Territory', _(territory_name)):
         new_territory = frappe.new_doc("Territory")
@@ -265,6 +260,45 @@ def create_customer_group(customer_group_name):
         new_customer_group.save(ignore_permissions=True)
     else:
         return false
+
+def create_address_from_array(customer_addresses):
+    for i in customer_addresses:
+        doc = i
+        if not frappe.db.exists('Address', _(doc['address_title'])):
+            new_address = frappe.new_doc("Address")
+            new_address.address_title = _(doc['address_title'])
+            new_address.address_type = _(doc['address_type'])
+            new_address.address_line1 = _(doc['address_line1'])
+            new_address.city = _(doc['city'])
+            new_address.save(ignore_permissions=True)
+        else:
+            return false
+
+def create_contact_from_array(contacts):
+    for i in contacts:
+        doc = i
+        #  Verificar como buscar el titulo del contacto, no solo el nombre
+        if not frappe.db.exists('Contact', _(doc['first_name'])):
+            new_contact = frappe.new_doc("Contact")
+            new_contact.first_name = _(doc['first_name'])
+            new_contact.last_name = _(doc['last_name'])
+            new_contact.mobile_no = _(doc['mobile_no'])
+            new_contact.phone = _(doc['phone'])
+            new_contact.email_id = _(doc['email_id'])
+            new_contact.save(ignore_permissions=True)
+        else:
+            return false
+
+# def create_address(customer_addresses):
+#     if not frappe.db.exists('Address', _(address_title)):
+#         new_address = frappe.new_doc("Address")
+#         new_address.title = _(territory_name)
+#         new_address.type =
+#         new_address.address_line1 =
+#         new_address.city =
+#         new_territory.save(ignore_permissions=True)
+#     else:
+#         return false
     # # find if customer group exists as sent
     # # if it exists, do not create it
     # # if it doesn't, we refer to root, so we create it under root
