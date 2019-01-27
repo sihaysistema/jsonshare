@@ -1,4 +1,5 @@
-console.log('Hola');
+// Copyright (c) 2019, Si Hay Sistema and contributors
+// For license information, please see license.txt
 
 function compartir_item(frm, doctype, codigo) {
     // Agrega un boton llamado share
@@ -42,7 +43,7 @@ function compartir_item(frm, doctype, codigo) {
                     // Imprime el codigo del item a ser enviado
                     //console.log(frm.doc.item_code);
                     frappe.call({
-                        method: "jsonshare.api.crud",
+                        method: "jsonshare.api_data.obtener_datos",
                         args: {
                             item: codigo,
                             usuario: dialog.fields_dict.user_share.value,
